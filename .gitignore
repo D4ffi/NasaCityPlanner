@@ -1,0 +1,176 @@
+# ============================================
+# BACKEND (Java/Spring Boot/Maven)
+# ============================================
+
+backend/HELP.md
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+!backend/**/src/main/**/target/
+!backend/**/src/test/**/target/
+
+# Spring Tool Suite
+backend/.apt_generated
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings
+backend/.springBeans
+backend/.sts4-cache
+
+# IntelliJ IDEA
+backend/.idea
+backend/*.iws
+backend/*.iml
+backend/*.ipr
+
+# NetBeans
+backend/nbproject/private/
+backend/nbbuild/
+backend/dist/
+backend/nbdist/
+backend/.nb-gradle/
+backend/build/
+!backend/**/src/main/**/build/
+!backend/**/src/test/**/build/
+
+# Java
+backend/**/*.class
+backend/**/*.jar
+backend/**/*.war
+backend/**/*.ear
+
+# Logs backend
+backend/**/*.log
+
+# ============================================
+# FRONTEND (Node/React/Vite)
+# ============================================
+
+# Dependencies
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# Build output
+frontend/dist/
+frontend/dist-ssr/
+frontend/build/
+
+# Testing
+frontend/coverage/
+
+# Environment variables
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+frontend/*.local
+
+# Logs frontend
+frontend/logs/
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+
+# ============================================
+# EDITORES E IDEs (GLOBAL)
+# ============================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# NetBeans
+nbproject/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# ============================================
+# SISTEMAS OPERATIVOS
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ============================================
+# OTROS
+# ============================================
+
+# Variables de entorno (raíz)
+.env
+.env.local
+.env.*.local
+
+# Logs generales
+logs/
+*.log
+
+# Archivos temporales
+*.tmp
+*.temp
+*.cache
+
+# Archivos comprimidos
+*.zip
+*.tar.gz
+*.rar
+
+# Bases de datos locales
+*.sqlite
+*.db
+
+# Docker (si usas)
+docker-compose.override.yml
+
+# Certificados y claves
+*.pem
+*.key
+*.cert
+*.crt
+
+# Carpetas de dependencias globales
+node_modules/
+vendor/
+# Project exclude paths
+/BackCityPlanner/target/
