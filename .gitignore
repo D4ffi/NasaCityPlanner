@@ -174,3 +174,5 @@ node_modules/
 vendor/
 # Project exclude paths
 /BackCityPlanner/target/
+
+CLAUDE.md
