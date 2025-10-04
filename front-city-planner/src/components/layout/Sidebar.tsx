@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Map, Bus, Trees, TrendingUp } from 'lucide-react';
+import { Home, Map, Bus, Trees, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface MenuItem {
   icon: React.ReactNode;
@@ -13,7 +13,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onNavigate, activeView }) => {
-  const [isOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(true);
 
   const menuItems: MenuItem[] = [
     { icon: <Home size={24} />, label: 'Dashboard', id: 'dashboard' },
@@ -31,10 +31,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate, activeView }) => {
       } bg-gradient-to-b from-indigo-600 to-indigo-800 text-white transition-all duration-300 ease-in-out shadow-xl flex flex-col`}
     >
       {/* Header */}
-      <div className="p-6 border-b border-indigo-500">
+      <div className="p-6 border-b border-indigo-500 flex items-center justify-between">
         <h1 className={`font-bold text-2xl ${!isOpen && 'hidden'}`}>
           Side bar
         </h1>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+          aria-label={isOpen ? 'Cerrar sidebar' : 'Abrir sidebar'}
+        >
+          {isOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+        </button>
       </div>
 
       {/* Menu Items */}
