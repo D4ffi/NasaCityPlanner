@@ -7,19 +7,19 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"bgBlue.bold,bgMagenta.bold\" \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd BackCityPlanner && dotenv -e ../.env -- mvnw spring-boot:run",
+  "dev:backend": "cd BackCityPlanner && dotenv -e ../.env -- ./mvnw spring-boot:run",
     "dev:frontend": "cd front-city-planner && npm run dev",
     "build": "npm run build:backend && npm run build:frontend",
-    "build:backend": "cd BackCityPlanner && mvnw clean package -DskipTests",
+  "build:backend": "cd BackCityPlanner && ./mvnw clean package -DskipTests",
     "build:frontend": "cd front-city-planner && npm run build",
     "install:all": "npm run install:frontend",
     "install:frontend": "cd front-city-planner && npm install",
     "lint:frontend": "cd front-city-planner && npm run lint",
     "preview:frontend": "cd front-city-planner && npm run preview",
     "clean": "npm run clean:backend && npm run clean:frontend",
-    "clean:backend": "cd BackCityPlanner && mvnw clean",
+  "clean:backend": "cd BackCityPlanner && ./mvnw clean",
     "clean:frontend": "cd front-city-planner && shx rm -rf node_modules dist",
-    "test:backend": "cd BackCityPlanner && mvnw test",
+  "test:backend": "cd BackCityPlanner && ./mvnw test",
     "test:frontend": "cd front-city-planner && npm run test"
   },
   "devDependencies": {
