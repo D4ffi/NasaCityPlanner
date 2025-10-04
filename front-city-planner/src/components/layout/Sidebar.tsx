@@ -51,8 +51,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate, activeView }) => {
 
       {/* Header */}
       <div className="p-6 border-b border-indigo-500 flex items-center justify-between">
-        <h1 className={`font-bold text-2xl ${!isOpen && 'hidden'}`}>
-          Side bar
+        <h1 className={`font-bold text-2xl ${!isOpen && 'hidden'} ${
+          // CLASE AGREGADA: Mismo color que el footer y los elementos de navegación
+          isOpen && 'bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400'
+        }`}>
+          Data Pathways
         </h1>
         <button
           onClick={() => setIsOpen(!isOpen)}
