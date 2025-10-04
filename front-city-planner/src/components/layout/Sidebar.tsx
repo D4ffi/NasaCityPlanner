@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Map, Bus, Trees, TrendingUp, ChevronRight } from 'lucide-react';
+import { Home, Map, Bus, Trees, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface MenuItem {
   icon: React.ReactNode;
@@ -13,7 +13,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onNavigate, activeView }) => {
-  const [isOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(true);
 
   const menuItems: MenuItem[] = [
     { icon: <Home size={24} />, label: 'Dashboard', id: 'dashboard' },
@@ -50,10 +50,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate, activeView }) => {
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-blue-500/5 to-transparent blur-2xl pointer-events-none" />
 
       {/* Header */}
-      <div className="p-6 border-b border-purple-500/30 relative z-10">
-        <h1 className={`font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 ${!isOpen && 'hidden'}`}>
-          Data Pathways
+      <div className="p-6 border-b border-indigo-500 flex items-center justify-between">
+        <h1 className={`font-bold text-2xl ${!isOpen && 'hidden'}`}>
+          Side bar
         </h1>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+          aria-label={isOpen ? 'Cerrar sidebar' : 'Abrir sidebar'}
+        >
+          {isOpen ? <ChevronLeft size={24} /> : <ChevronRight size={24} />}
+        </button>
       </div>
 
       {/* Menu Items */}
