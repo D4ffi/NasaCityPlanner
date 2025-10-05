@@ -1,13 +1,19 @@
 package com.daffidev.backcityplanner.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 public class MapService {
-
+    
 	private final WorldPopClient worldPopClient;
-
+    private final Logger logger = LoggerFactory.getLogger(MapService.class);
+	private final ObjectMapper objectMapper = new ObjectMapper();
 	public MapService(WorldPopClient worldPopClient) {
 		this.worldPopClient = worldPopClient;
 	}
@@ -28,10 +34,38 @@ public class MapService {
 		JsonNode root = worldPopClient.fetchPopulationByIso3(iso3);
 		if (root == null) return null;
 
-		JsonNode files = root.path("data").path("id").path("files");
-		if (files.isMissingNode() || files.isNull()) {
+		JsonNode dataNode = root.path("data");
+		if (dataNode.isMissingNode() || dataNode.isNull()) {
+			logger.error("Respuesta WorldPop sin campo 'data'");
 			return null;
 		}
-		return files;
+
+		ArrayNode resultArray = objectMapper.createArrayNode();
+
+		if (dataNode.isArray()) {
+			for (JsonNode item : dataNode) {
+				JsonNode filesNode = item.path("files");
+				if (filesNode.isArray()) {
+					for (JsonNode f : filesNode) {
+						resultArray.add(f.asText());
+					}
+				}
+			}
+		} else {
+			// data is an object
+			JsonNode filesNode = dataNode.path("files");
+			if (filesNode.isArray()) {
+				for (JsonNode f : filesNode) {
+					resultArray.add(f.asText());
+				}
+			}
+		}
+
+		if (resultArray.isEmpty()) {
+			logger.error("No se obtuvieron archivos");
+			return null;
+		}
+		logger.debug("Solicitud exitosa, archivos encontrados: {}", resultArray.size());
+		return resultArray;
 	}
 }

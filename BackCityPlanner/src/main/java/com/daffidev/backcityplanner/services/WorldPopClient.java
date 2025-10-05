@@ -1,9 +1,8 @@
 package com.daffidev.backcityplanner.services;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
@@ -48,6 +47,7 @@ public class WorldPopClient {
         try {
             ResponseEntity<String> resp = restTemplate.getForEntity(url, String.class);
             if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
+                logger.debug("Solicitud exitosa");
                 return objectMapper.readTree(resp.getBody());
             } else {
                 logger.warn("WorldPop returned non-2xx status: {}", resp.getStatusCode());
@@ -69,3 +69,10 @@ public class WorldPopClient {
         return node == null ? null : node.toString();
     }
 }
+/*
+ * Ricardo: BBQ
+ * Mau: BBQ Jalapeño
+ * Erick: Buffalo
+ * Koss: Crunch
+ * yo: Red Sandwich
+ */
