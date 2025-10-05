@@ -1,9 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, Users, Home, Activity } from 'lucide-react';
 import StatsCard from '../ui/StatsCard';
 import ChartCard from '../ui/ChartCard';
 
 const Dashboard: React.FC = () => {
+  const [mapUrls, setMapUrls] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMapUrls = async () => {
+      try {
+        setLoading(true);
+        console.log('Fetching map URLs for year 2020...');
+        const response = await fetch('http://localhost:8080/api/graphics/urls?year=2020', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log('Response status:', response.status);
+
+        if (response.status === 204) {
+          setMapUrls([]);
+          setError('No hay mapas disponibles para el año 2020');
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const urls = await response.json();
+        console.log('Received URLs:', urls);
+        setMapUrls(urls);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching map URLs:', err);
+        setError(`Error al cargar los mapas: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMapUrls();
+  }, []);
+
   const stats = [
     {
       title: 'Vivienda y crecimiento urbano',
@@ -94,10 +137,33 @@ const Dashboard: React.FC = () => {
           />
 
           <ChartCard
-            title="Mapa (no interactivo)"
+            title="Mapa de Población 2020"
             bgColor="from-blue-900/50 to-indigo-900/50"
+            height="h-[270px]"
           >
-            <p className="text-gray-300">Vista previa del mapa</p>
+            {loading ? (
+              <p className="text-gray-300">Cargando mapas...</p>
+            ) : error ? (
+              <p className="text-red-400">{error}</p>
+            ) : mapUrls.length > 0 ? (
+              <div className="w-full h-full overflow-hidden relative">
+                <img
+                  src={mapUrls[0]}
+                  alt="Mapa de población"
+                  className="w-full h-full object-cover"
+                  style={{
+                    objectFit: 'cover',
+                    objectPosition: '50% 40%'
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>';
+                    e.currentTarget.alt = 'Error al cargar imagen';
+                  }}
+                />
+              </div>
+            ) : (
+              <p className="text-gray-400">No hay mapas disponibles</p>
+            )}
           </ChartCard>
         </div>
       </div>
