@@ -17,39 +17,34 @@ import java.io.IOException;
 @RequestMapping("/api/worldpop/")
 public class MapController {
 
-	private static final Logger logger = LoggerFactory.getLogger(MapController.class);
+    private static final Logger logger = LoggerFactory.getLogger(MapController.class);
 
-	private final MapService mapService;
+    private final MapService mapService;
 
-	public MapController(MapService mapService) {
-		this.mapService = mapService;
-	}
+    public MapController(MapService mapService) {
+        this.mapService = mapService;
+    }
 
-	@GetMapping()
-	public ResponseEntity<JsonNode> getWorldpop(@RequestParam(name = "iso3", defaultValue = "MEX") String iso3) {
-		JsonNode node = mapService.getPopulationByIso3(iso3);
-		if (node == null) {
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.ok(node);
-	}
+    @GetMapping()
+    public ResponseEntity<JsonNode> getWorldpop(@RequestParam(name = "iso3", defaultValue = "MEX") String iso3) {
+        JsonNode node = mapService.getPopulationByIso3(iso3);
+        if (node == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(node);
+    }
 
-	@GetMapping("/files")
-	public ResponseEntity<JsonNode> getWorldpopFiles(@RequestParam(name = "iso3", defaultValue = "MEX") String iso3) {
-		JsonNode node = mapService.getWorldpopFilesByIso3(iso3);
-		if (node == null) {
-			return ResponseEntity.noContent().build();
-		}
-		return ResponseEntity.ok(node);
-	}
+    @GetMapping("/files")
+    public ResponseEntity<JsonNode> getWorldpopFiles(@RequestParam(name = "iso3", defaultValue = "MEX") String iso3) {
+        JsonNode node = mapService.getWorldpopFilesByIso3(iso3);
+        if (node == null) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(node);
+    }
 
-	/**
-	 * Downloads a TIFF file from the provided URL and converts it to PNG.
-	 * Returns the PNG image directly in the response.
-	 *
-	 * Example: GET /api/worldpop/tiff/convert?url=https://example.com/map.tiff
-	 */
-	@GetMapping("/tiff/convert")
+
+    @GetMapping("/tiff/convert")
 	public ResponseEntity<byte[]> convertTiffFromUrl(@RequestParam String url) {
 		try {
 			logger.info("Received request to convert TIFF from URL: {}", url);
@@ -67,7 +62,7 @@ public class MapController {
 		}
 	}
 
-	/**
+    /**
 	 * Accepts a TIFF file upload and converts it to PNG.
 	 * Returns the PNG image directly in the response.
 	 *

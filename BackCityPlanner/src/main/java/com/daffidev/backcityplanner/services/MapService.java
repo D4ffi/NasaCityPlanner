@@ -6,9 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -77,9 +74,10 @@ public class MapService {
 		}
 		logger.debug("Solicitud exitosa, archivos encontrados: {}", resultArray.size());
 		return resultArray;
-	}
-
-	/**
+    }
+	
+    
+    /**
 	 * Downloads a TIFF file from the given URL and converts it to PNG format.
 	 *
 	 * @param tiffUrl URL of the TIFF file to download
@@ -101,7 +99,6 @@ public class MapService {
 				byte[] tiffData = response.getBody();
 				logger.info("Downloaded TIFF file. Size: {} bytes");		
                 logger.debug("Solicitud exitosa, archivos encontrados: {}");
-;
 
 				// Convert to PNG
 				return tiffConverter.convertTiffToPng(tiffData);

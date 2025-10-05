@@ -69,10 +69,3 @@ public class WorldPopClient {
         return node == null ? null : node.toString();
     }
 }
-/*
- * Ricardo: BBQ
- * Mau: BBQ Jalapeño
- * Erick: Buffalo
- * Koss: Crunch
- * yo: Red Sandwich
- */
