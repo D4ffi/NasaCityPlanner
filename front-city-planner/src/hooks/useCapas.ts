@@ -43,6 +43,26 @@ export const useCapas = (): UseCapasReturn => {
   };
 
   /**
+   * Carga todas las capas
+   */
+  const loadAllCapas = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const capasDTO = await capaApi.getAllCapas();
+      const capasParsed = capasDTO.map(parseCapaDTO);
+      setCapas(capasParsed);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'Error al cargar capas';
+      setError(errorMessage);
+      console.error('Error loading capas:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
    * Guarda una nueva capa
    */
   const saveCapa = useCallback(async (features: Feature[], type: LayerType) => {
@@ -66,27 +86,7 @@ export const useCapas = (): UseCapasReturn => {
     } finally {
       setLoading(false);
     }
-  }, []);
-
-  /**
-   * Carga todas las capas
-   */
-  const loadAllCapas = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const capasDTO = await capaApi.getAllCapas();
-      const capasParsed = capasDTO.map(parseCapaDTO);
-      setCapas(capasParsed);
-    } catch (e) {
-      const errorMessage = e instanceof Error ? e.message : 'Error al cargar capas';
-      setError(errorMessage);
-      console.error('Error loading capas:', e);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  }, [loadAllCapas]);
 
   /**
    * Carga capas de un tipo específico

@@ -42,6 +42,7 @@ const MapWithLayers = () => {
     enableDrawing: true,
   });
 
+  // Obtener el mapa del contexto (será null hasta que useMapbox lo inicialice)
   const { map } = useMapContext();
 
   // Cargar capas al montar si showSavedLayers está activo
@@ -64,7 +65,7 @@ const MapWithLayers = () => {
       fillOpacity: config.opacity,
       lineColor: config.color, // Opcional: usar un color de línea diferente
     }));
-  }, [showSavedLayers, getFeaturesByType, capas]);
+  }, [showSavedLayers, getFeaturesByType]);
 
   // Renderizar todas las capas con un solo hook
   usePolygonLayers(map, layerConfigs);
