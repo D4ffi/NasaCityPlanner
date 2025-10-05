@@ -41,50 +41,58 @@ export const useMapbox = ({
 
       // Esperar a que el mapa esté cargado para agregar el 3D
       newMap.on('load', () => {
-        // Habilitar edificios 3D
-        const layers = newMap.getStyle().layers;
-        if (layers) {
-          // Buscar la primera capa de símbolos para insertar los edificios antes
-          const labelLayerId = layers.find(
-            (layer) => layer.type === 'symbol' && layer.layout && layer.layout['text-field']
-          )?.id;
+        // Habilitar edificios 3D solo si el source composite existe
+        try {
+          if (newMap.getSource('composite')) {
+            const layers = newMap.getStyle().layers;
+            if (layers) {
+              // Buscar la primera capa de símbolos para insertar los edificios antes
+              const labelLayerId = layers.find(
+                (layer) => layer.type === 'symbol' && layer.layout && layer.layout['text-field']
+              )?.id;
 
-          // Agregar capa de edificios 3D si no existe
-          if (!newMap.getLayer('add-3d-buildings')) {
-            newMap.addLayer(
-              {
-                id: 'add-3d-buildings',
-                source: 'composite',
-                'source-layer': 'building',
-                filter: ['==', 'extrude', 'true'],
-                type: 'fill-extrusion',
-                minzoom: 15,
-                paint: {
-                  'fill-extrusion-color': '#aaa',
-                  'fill-extrusion-height': [
-                    'interpolate',
-                    ['linear'],
-                    ['zoom'],
-                    15,
-                    0,
-                    15.05,
-                    ['get', 'height'],
-                  ],
-                  'fill-extrusion-base': [
-                    'interpolate',
-                    ['linear'],
-                    ['zoom'],
-                    15,
-                    0,
-                    15.05,
-                    ['get', 'min_height'],
-                  ],
-                  'fill-extrusion-opacity': 0.6,
-                },
-              },
-              labelLayerId
-            );
+              // Agregar capa de edificios 3D si no existe
+              if (!newMap.getLayer('add-3d-buildings')) {
+                newMap.addLayer(
+                  {
+                    id: 'add-3d-buildings',
+                    source: 'composite',
+                    'source-layer': 'building',
+                    filter: ['==', 'extrude', 'true'],
+                    type: 'fill-extrusion',
+                    minzoom: 15,
+                    paint: {
+                      'fill-extrusion-color': '#aaa',
+                      'fill-extrusion-height': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        15,
+                        0,
+                        15.05,
+                        ['get', 'height'],
+                      ],
+                      'fill-extrusion-base': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        15,
+                        0,
+                        15.05,
+                        ['get', 'min_height'],
+                      ],
+                      'fill-extrusion-opacity': 0.6,
+                    },
+                  },
+                  labelLayerId
+                );
+              }
+            }
+          } else {
+            console.log('Source "composite" no disponible en este estilo. Edificios 3D deshabilitados.');
           }
+        } catch (error) {
+          console.warn('No se pudieron agregar edificios 3D:', error);
         }
 
         // Habilitar terreno 3D (solo si es soportado)
@@ -120,14 +128,14 @@ export const useMapbox = ({
     }
 
     return () => {
-      // Solo limpiar si somos los dueños del mapa
-      if (mapInstanceRef.current && mapInstanceRef.current === map) {
+      // Solo limpiar cuando el componente se desmonta completamente
+      if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
         setMap(null);
       }
     };
-  }, [container, initialCenter, initialZoom, style, map, setMap]);
+  }, [container]);
 
   return map;
 };
