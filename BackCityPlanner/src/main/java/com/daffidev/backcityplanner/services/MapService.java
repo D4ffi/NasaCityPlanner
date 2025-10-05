@@ -1,5 +1,6 @@
 package com.daffidev.backcityplanner.services;
 
+import com.daffidev.backcityplanner.dto.PopulationImageDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class MapService {
@@ -150,5 +153,80 @@ public class MapService {
 
 		// 3. Download and convert TIFF to PNG
 		return downloadAndConvertTiffToPng(tiffUrl);
+	}
+
+	/**
+	 * Fetches population density images with URLs from WorldPop API.
+	 *
+	 * @param iso3 ISO3 country code (e.g., "MEX")
+	 * @return List of PopulationImageDto containing year and image URL
+	 */
+	public List<PopulationImageDto> getPopulationImages(String iso3) {
+		JsonNode root = worldPopClient.fetchPopulationDensityByIso3(iso3);
+
+		if (root == null) {
+			logger.error("No population density data found for iso3: {}", iso3);
+			return new ArrayList<>();
+		}
+
+		// Debug: Log complete JSON structure
+		logger.debug("Complete JSON response: {}", root.toPrettyString());
+
+		JsonNode dataNode = root.path("data");
+		if (dataNode.isMissingNode() || dataNode.isNull()) {
+			logger.error("Response missing 'data' field for iso3: {}", iso3);
+			return new ArrayList<>();
+		}
+
+		logger.debug("Data node is array: {}, size: {}", dataNode.isArray(), dataNode.isArray() ? dataNode.size() : "N/A");
+
+		List<PopulationImageDto> result = new ArrayList<>();
+
+		if (dataNode.isArray()) {
+			for (JsonNode item : dataNode) {
+				PopulationImageDto dto = extractPopulationImageDto(item);
+				if (dto != null) {
+					result.add(dto);
+				}
+			}
+		} else {
+			PopulationImageDto dto = extractPopulationImageDto(dataNode);
+			if (dto != null) {
+				result.add(dto);
+			}
+		}
+
+		logger.info("Found {} population images for iso3: {}", result.size(), iso3);
+		return result;
+	}
+
+	/**
+	 * Extracts PopulationImageDto from a JsonNode.
+	 *
+	 * @param node JsonNode containing popyear and url_img fields
+	 * @return PopulationImageDto or null if required fields are missing
+	 */
+	private PopulationImageDto extractPopulationImageDto(JsonNode node) {
+		// Debug: Log all available field names in the node
+		logger.debug("Node structure: {}", node.toPrettyString());
+
+		JsonNode popYearNode = node.path("popyear");
+		JsonNode urlImageNode = node.path("url_img");
+
+		if (popYearNode.isMissingNode() || urlImageNode.isMissingNode()) {
+			logger.warn("Missing popyear or url_img field. Available fields: {}",
+				node.fieldNames().hasNext() ?
+					java.util.stream.StreamSupport.stream(
+						java.util.Spliterators.spliteratorUnknownSize(node.fieldNames(), java.util.Spliterator.ORDERED),
+						false
+					).collect(java.util.stream.Collectors.joining(", "))
+					: "none");
+			return null;
+		}
+
+		Integer popYear = popYearNode.asInt();
+		String urlImage = urlImageNode.asText();
+
+		return new PopulationImageDto(popYear, urlImage);
 	}
 }

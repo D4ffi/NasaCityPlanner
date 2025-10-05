@@ -18,6 +18,7 @@ public class WorldPopClient {
     private final Logger logger = LoggerFactory.getLogger(WorldPopClient.class);
 
     private static final String BASE_URL = "https://www.worldpop.org/rest/data/pop/WPGP";
+    private static final String POPULATION_DENSITY_URL = "https://www.worldpop.org/rest/data/pop_density/pd_ic_1km";
 
     public WorldPopClient() {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
@@ -67,5 +68,40 @@ public class WorldPopClient {
     public String fetchPopulationByIso3AsString(String iso3) {
         JsonNode node = fetchPopulationByIso3(iso3);
         return node == null ? null : node.toString();
+    }
+
+    /**
+     * Fetches WorldPop population density data with image URLs for a given ISO3 country code.
+     *
+     * Contract:
+     * - Input: iso3 (non-null, e.g. "MEX")
+     * - Output: parsed JSON as Jackson JsonNode containing popyear and url_image fields
+     * - Errors: throws RuntimeException for network/parse errors, rethrows HttpClientErrorException for 4xx/5xx
+     */
+    public JsonNode fetchPopulationDensityByIso3(String iso3) {
+        if (iso3 == null || iso3.isBlank()) {
+            throw new IllegalArgumentException("iso3 must be provided");
+        }
+
+        String url = UriComponentsBuilder.fromHttpUrl(POPULATION_DENSITY_URL)
+                .queryParam("iso3", iso3)
+                .toUriString();
+
+        try {
+            ResponseEntity<String> resp = restTemplate.getForEntity(url, String.class);
+            if (resp.getStatusCode().is2xxSuccessful() && resp.getBody() != null) {
+                logger.debug("Population density request successful for iso3: {}", iso3);
+                return objectMapper.readTree(resp.getBody());
+            } else {
+                logger.warn("WorldPop population density returned non-2xx status: {}", resp.getStatusCode());
+                return null;
+            }
+        } catch (HttpClientErrorException e) {
+            logger.error("WorldPop population density HTTP error: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error fetching WorldPop population density data: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to fetch WorldPop population density data", e);
+        }
     }
 }
