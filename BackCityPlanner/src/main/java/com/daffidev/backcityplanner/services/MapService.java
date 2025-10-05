@@ -137,15 +137,13 @@ public class MapService {
 			throw new IOException("No files found for ISO3: " + iso3);
 		}
 
-		// 2. Extract TIFF URL from first file (assuming field name is "pth")
-		JsonNode firstFile = files.get(0);
-		JsonNode pthNode = firstFile.path("pth");
+		// 2. Extract TIFF URL from first file (it's already a string URL)
+		String tiffUrl = files.get(0).asText();
 
-		if (pthNode.isMissingNode() || pthNode.isNull()) {
-			throw new IOException("No 'pth' field found in WorldPop file metadata");
+		if (tiffUrl == null || tiffUrl.isBlank()) {
+			throw new IOException("No valid TIFF URL found in WorldPop file metadata");
 		}
 
-		String tiffUrl = pthNode.asText();
 		logger.info("Extracted TIFF URL for {}: {}", iso3, tiffUrl);
 
 		// 3. Download and convert TIFF to PNG

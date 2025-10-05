@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Map, Bus, Trees, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, Map, Bus, Trees, TrendingUp, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 
 interface MenuItem {
   icon: React.ReactNode;
@@ -18,6 +18,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onNavigate, activeView }) => {
   const menuItems: MenuItem[] = [
     { icon: <Home size={24} />, label: 'Dashboard', id: 'dashboard' },
     { icon: <Map size={24} />, label: 'Mapa', id: 'map' },
+    { icon: <Layers size={24} />, label: 'Mapa con Capas', id: 'map-layers' },
+    { icon: <Layers size={24} />, label: 'Demo: Capas de Polígonos', id: 'polygon-demo' },
     { icon: <Home size={24} />, label: 'Vivienda y crecimiento urbano', id: 'housing' },
     { icon: <Bus size={24} />, label: 'Transporte y movilidad', id: 'transport' },
     { icon: <Trees size={24} />, label: 'Áreas verdes y recreación', id: 'green' },

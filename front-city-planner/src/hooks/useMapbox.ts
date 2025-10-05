@@ -6,12 +6,13 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { useMapContext } from '../context/MapContext';
 import type { Feature } from 'geojson';
 
-// --- Interfaces (sin cambios) ---
+// --- Interfaces ---
 interface UseMapboxOptions {
   container: HTMLDivElement | null;
   initialCenter?: [number, number];
   initialZoom?: number;
   style?: string;
+  enableDrawing?: boolean; // Habilitar controles de dibujo (por defecto: true)
 }
 
 interface UseMapboxReturn {
@@ -25,9 +26,10 @@ const DEFAULT_STYLE = 'mapbox://styles/daffi/cmgb6w2zg000b01qp3e315yw8';
 
 export const useMapbox = ({
                             container,
-                            initialCenter = DEFAULT_CENTER, // 2. Usa las constantes
+                            initialCenter = DEFAULT_CENTER,
                             initialZoom = DEFAULT_ZOOM,
                             style = DEFAULT_STYLE,
+                            enableDrawing = true, // Por defecto habilitado para compatibilidad
                           }: UseMapboxOptions): UseMapboxReturn => {
   const { setMap } = useMapContext();
   const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
@@ -49,19 +51,22 @@ export const useMapbox = ({
     setMap(newMap);
 
     newMap.on('load', () => {
-      const draw = new MapboxDraw({
-        displayControlsDefault: false,
-        controls: { polygon: true, trash: true },
-      });
-      newMap.addControl(draw, 'top-right');
+      // Solo agregar controles de dibujo si está habilitado
+      if (enableDrawing) {
+        const draw = new MapboxDraw({
+          displayControlsDefault: false,
+          controls: { polygon: true, trash: true },
+        });
+        newMap.addControl(draw, 'top-right');
 
-      const updateFeatures = () => {
-        setDrawnFeatures(draw.getAll().features);
-      };
+        const updateFeatures = () => {
+          setDrawnFeatures(draw.getAll().features);
+        };
 
-      newMap.on('draw.create', updateFeatures);
-      newMap.on('draw.delete', updateFeatures);
-      newMap.on('draw.update', updateFeatures);
+        newMap.on('draw.create', updateFeatures);
+        newMap.on('draw.delete', updateFeatures);
+        newMap.on('draw.update', updateFeatures);
+      }
     });
 
     newMap.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
@@ -72,7 +77,8 @@ export const useMapbox = ({
       setMap(null);
       mapInstanceRef.current = null;
     };
-  }, [container, initialCenter, initialZoom, style, setMap]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [container]);
 
   return { drawnFeatures };
 };

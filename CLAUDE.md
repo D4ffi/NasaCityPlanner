@@ -78,13 +78,32 @@ The backend uses `dotenv-cli` to load these variables when running via `npm run 
 - **Framework**: Spring Boot 3.5.6 with Spring Web and Spring Data JPA
 - **Database**: PostgreSQL hosted on Supabase (`db.kewcmyaivwpamlbekocv.supabase.co`)
 - **Build Tool**: Maven with wrapper (`mvnw`)
-- **Key Dependencies**: Lombok, PostgreSQL driver, Spring DevTools
+- **Key Dependencies**: Lombok, PostgreSQL driver, Spring DevTools, TwelveMonkeys ImageIO (TIFF support)
 - **Package Structure**: `com.daffidev.backcityplanner`
 - **Port**: 8080 (configured in `application.properties`)
 
 Database credentials are injected from environment variables:
 - `DB_USERNAME` defaults to `postgres`
 - `DB_PASSWORD` is required
+
+#### WorldPop API Integration
+The backend integrates with WorldPop API for population data:
+
+- **Service** (`WorldPopClient.java`):
+  - Base URL: `https://www.worldpop.org/rest/data/pop/WPGP`
+  - Uses Spring `RestTemplate` with 5s connect timeout, 10s read timeout
+  - `fetchPopulationByIso3(String iso3)`: Returns population data as Jackson `JsonNode`
+
+- **REST Endpoints** (`MapController.java` at `/api/worldpop/`):
+  - `GET /api/worldpop/?iso3=MEX`: Get population data by ISO3 country code
+  - `GET /api/worldpop/files?iso3=MEX`: Get WorldPop files metadata
+  - `GET /api/worldpop/tiff/convert?url=<url>`: Download TIFF from URL and convert to PNG
+  - `POST /api/worldpop/tiff/upload`: Upload TIFF file and convert to PNG (multipart/form-data)
+
+- **TIFF Conversion** (`TiffConverter.java`):
+  - Uses TwelveMonkeys ImageIO library for TIFF support
+  - Converts TIFF to PNG with quality settings
+  - Handles both URL downloads and file uploads
 
 ### Frontend (front-city-planner/)
 - **Framework**: React 19 with TypeScript
@@ -93,18 +112,19 @@ Database credentials are injected from environment variables:
 - **Mapping**: MapboxGL 3.15.0
 
 #### MapboxGL Integration Pattern
-The frontend uses a structured approach for Mapbox integration:
+The frontend uses a structured three-layer approach for Mapbox integration:
 
 1. **Context** (`src/context/MapContext.tsx`):
    - Provides global map instance state via `MapProvider`
    - Access map instance with `useMapContext()` hook
+   - Must wrap app at root level for map sharing across components
 
 2. **Hook** (`src/hooks/useMapbox.ts`):
    - Initializes MapboxGL instance with custom configuration
-   - Default center: Veracruz, México `[-96.11022390967145, 19.160172792691906]`
+   - Default center: Veracruz, México `[-96.1102, 19.1601]`
    - Custom style: `mapbox://styles/daffi/cmgb6w2zg000b01qp3e315yw8` (NightMap)
-   - Adds 3D buildings layer (`add-3d-buildings`) at zoom 15+
-   - Enables 3D terrain with `mapbox-dem` source (1.5x exaggeration)
+   - **Drawing functionality**: Integrates `@mapbox/mapbox-gl-draw` with polygon and trash controls
+   - Returns `drawnFeatures` array tracking polygon draw/update/delete events
    - Includes NavigationControl and FullscreenControl
 
 3. **Component** (`src/components/MapboxMap.tsx`):
