@@ -16,8 +16,6 @@ import java.io.IOException;
 
 @Service
 public class MapService {
-
-	private static final Logger logger = LoggerFactory.getLogger(MapService.class);
     
 	private final WorldPopClient worldPopClient;
 	private final TiffConverter tiffConverter;
@@ -101,7 +99,9 @@ public class MapService {
 
 			if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
 				byte[] tiffData = response.getBody();
-				logger.info("Downloaded TIFF file. Size: {} bytes", tiffData.length);
+				logger.info("Downloaded TIFF file. Size: {} bytes");		
+                logger.debug("Solicitud exitosa, archivos encontrados: {}");
+;
 
 				// Convert to PNG
 				return tiffConverter.convertTiffToPng(tiffData);
