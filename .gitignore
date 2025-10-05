@@ -175,4 +175,5 @@ vendor/
 # Project exclude paths
 /BackCityPlanner/target/
 
+.claude
 CLAUDE.md
