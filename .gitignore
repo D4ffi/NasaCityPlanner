@@ -176,3 +176,5 @@ vendor/
 /BackCityPlanner/target/
 
 CLAUDE.md
+GEMINI.md
+.geminiignore
