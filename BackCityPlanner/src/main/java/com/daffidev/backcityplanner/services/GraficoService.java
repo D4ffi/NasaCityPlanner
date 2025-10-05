@@ -62,6 +62,26 @@ public class GraficoService {
 	}
 
 	/**
+	 * Retrieves all graphic URLs by year.
+	 *
+	 * @param year the year to search for
+	 * @return list of URLs for graphics matching the year
+	 */
+	public List<String> getGraphicUrlsByYear(Integer year) {
+		if (year == null) {
+			logger.warn("Year parameter is null");
+			return List.of();
+		}
+
+		List<Grafico> graficos = graficoRepository.findByYear(year);
+		logger.info("Found {} graphics for year: {}", graficos.size(), year);
+
+		return graficos.stream()
+				.map(Grafico::getUrl)
+				.collect(Collectors.toList());
+	}
+
+	/**
 	 * Deletes all graphics by name (ISO3).
 	 *
 	 * @param name the name/ISO3 to delete

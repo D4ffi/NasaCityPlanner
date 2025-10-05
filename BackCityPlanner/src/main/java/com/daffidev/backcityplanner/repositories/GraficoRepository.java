@@ -21,6 +21,14 @@ public interface GraficoRepository extends JpaRepository<Grafico, Long> {
 	List<Grafico> findByName(String name);
 
 	/**
+	 * Find all graphics by year.
+	 *
+	 * @param year the year to search for
+	 * @return list of graphics matching the year
+	 */
+	List<Grafico> findByYear(Integer year);
+
+	/**
 	 * Delete all graphics by name.
 	 *
 	 * @param name the name/ISO3 to delete
