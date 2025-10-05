@@ -14,6 +14,7 @@ const MapLeyenda = ({ onFeatureClick }: MapLeyendaProps) => {
   const { map } = useMapContext();
   const [showDesigualdad, setShowDesigualdad] = useState(false);
   const [showVial, setShowVial] = useState(false);
+  const [showReferencias, setShowReferencias] = useState(false);
 
   const DESIGUALDAD_LAYER_ID = 'desigualdad-layer';
   const DESIGUALDAD_SOURCE_ID = 'desigualdad-source';
@@ -22,6 +23,10 @@ const MapLeyenda = ({ onFeatureClick }: MapLeyendaProps) => {
   const VIAL_LAYER_ID = 'vial-layer';
   const VIAL_SOURCE_ID = 'vial-source';
   const VIAL_TILESET_ID = 'daffi.ah2lqp8o';
+
+  const REFERENCIAS_LAYER_ID = 'referencias-layer';
+  const REFERENCIAS_SOURCE_ID = 'referencias-source';
+  const REFERENCIAS_TILESET_ID = 'daffi.cmge7zfh91d6n1qptsmq5344y-6hh8v';
 
   // Handler para click en el layer
   const handleLayerClick = useCallback((e: MapLayerMouseEvent) => {
@@ -248,6 +253,116 @@ const MapLeyenda = ({ onFeatureClick }: MapLeyendaProps) => {
     toggleVialLayer(showVial);
   }, [map, showVial, toggleVialLayer]);
 
+  // Toggle layer visibility - Referencias
+  const toggleReferenciasLayer = useCallback((show: boolean) => {
+    if (!map) return;
+
+    if (show) {
+      // Agregar source si no existe
+      if (!map.getSource(REFERENCIAS_SOURCE_ID)) {
+        map.addSource(REFERENCIAS_SOURCE_ID, {
+          type: 'vector',
+          url: `mapbox://${REFERENCIAS_TILESET_ID}`
+        });
+
+        // Log para inspeccionar las capas disponibles
+        map.on('sourcedata', function logSourceLayers(e) {
+          if (e.sourceId === REFERENCIAS_SOURCE_ID && e.isSourceLoaded) {
+            const source = map.getSource(REFERENCIAS_SOURCE_ID) as any;
+            if (source && source.vectorLayerIds) {
+              console.log('Referencias - Available source layers:', source.vectorLayerIds);
+            }
+            map.off('sourcedata', logSourceLayers);
+          }
+        });
+      }
+
+      const addLayers = () => {
+        if (!map.getLayer(REFERENCIAS_LAYER_ID)) {
+          // El source layer será detectado por el log, por ahora usamos un valor tentativo
+          const sourceLayerName = 'referencias-mejora';
+
+          try {
+            // Capa de relleno para polígonos
+            map.addLayer({
+              id: REFERENCIAS_LAYER_ID,
+              type: 'fill',
+              source: REFERENCIAS_SOURCE_ID,
+              'source-layer': sourceLayerName,
+              paint: {
+                'fill-color': [
+                  'match',
+                  ['get', 'mejora'],
+                  'consultorios', '#ef4444',    // Rojo (red-500) - Salud
+                  'escuela', '#3b82f6',          // Azul (blue-500) - Educación
+                  'area-abierta', '#f59e0b',     // Naranja (amber-500) - Espacios abiertos
+                  'area-verde', '#10b981',       // Verde (emerald-500) - Áreas verdes
+                  '#9ca3af'                      // Gris (gray-400) - Default
+                ],
+                'fill-opacity': 0.6
+              }
+            });
+
+            // Capa de borde para polígonos
+            map.addLayer({
+              id: `${REFERENCIAS_LAYER_ID}-outline`,
+              type: 'line',
+              source: REFERENCIAS_SOURCE_ID,
+              'source-layer': sourceLayerName,
+              paint: {
+                'line-color': '#ffffff',
+                'line-width': 2,
+                'line-opacity': 0.8
+              }
+            });
+
+            console.log('Referencias layer added successfully');
+          } catch (error) {
+            console.error('Error adding referencias layer:', error);
+          }
+        }
+      };
+
+      if (map.isSourceLoaded(REFERENCIAS_SOURCE_ID)) {
+        addLayers();
+      } else {
+        map.on('sourcedata', function waitForSource(e) {
+          if (e.sourceId === REFERENCIAS_SOURCE_ID && e.isSourceLoaded) {
+            addLayers();
+            map.off('sourcedata', waitForSource);
+          }
+        });
+      }
+
+      map.on('click', REFERENCIAS_LAYER_ID, handleLayerClick);
+      map.on('mouseenter', REFERENCIAS_LAYER_ID, () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', REFERENCIAS_LAYER_ID, () => {
+        map.getCanvas().style.cursor = '';
+      });
+    } else {
+      if (map.getLayer(`${REFERENCIAS_LAYER_ID}-outline`)) {
+        map.removeLayer(`${REFERENCIAS_LAYER_ID}-outline`);
+      }
+      if (map.getLayer(REFERENCIAS_LAYER_ID)) {
+        map.removeLayer(REFERENCIAS_LAYER_ID);
+      }
+      if (map.getSource(REFERENCIAS_SOURCE_ID)) {
+        map.removeSource(REFERENCIAS_SOURCE_ID);
+      }
+      map.off('click', REFERENCIAS_LAYER_ID, handleLayerClick);
+      map.off('mouseenter', REFERENCIAS_LAYER_ID, () => {});
+      map.off('mouseleave', REFERENCIAS_LAYER_ID, () => {});
+    }
+  }, [map, handleLayerClick]);
+
+  // Effect para manejar el toggle de referencias
+  useEffect(() => {
+    if (!map || !map.isStyleLoaded()) return;
+    toggleReferenciasLayer(showReferencias);
+  }, [map, showReferencias, toggleReferenciasLayer]);
+
   // Cleanup al desmontar
   useEffect(() => {
     return () => {
@@ -273,9 +388,21 @@ const MapLeyenda = ({ onFeatureClick }: MapLeyendaProps) => {
           map.removeSource(VIAL_SOURCE_ID);
         }
 
+        // Remover layer referencias
+        if (map.getLayer(`${REFERENCIAS_LAYER_ID}-outline`)) {
+          map.removeLayer(`${REFERENCIAS_LAYER_ID}-outline`);
+        }
+        if (map.getLayer(REFERENCIAS_LAYER_ID)) {
+          map.removeLayer(REFERENCIAS_LAYER_ID);
+        }
+        if (map.getSource(REFERENCIAS_SOURCE_ID)) {
+          map.removeSource(REFERENCIAS_SOURCE_ID);
+        }
+
         // Remover event listeners
         map.off('click', DESIGUALDAD_LAYER_ID, handleLayerClick);
         map.off('click', VIAL_LAYER_ID, handleLayerClick);
+        map.off('click', REFERENCIAS_LAYER_ID, handleLayerClick);
       } catch (error) {
         console.log('Cleanup error (safe to ignore):', error);
       }
@@ -318,6 +445,23 @@ const MapLeyenda = ({ onFeatureClick }: MapLeyendaProps) => {
             className="text-gray-200 text-sm cursor-pointer select-none hover:text-white transition-colors"
           >
             Información vial
+          </label>
+        </div>
+
+        {/* Capa de Referencias */}
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="referencias-layer"
+            checked={showReferencias}
+            onChange={(e) => setShowReferencias(e.target.checked)}
+            className="w-4 h-4 rounded border-purple-400 bg-purple-950/50 text-purple-500 focus:ring-purple-500 focus:ring-offset-0 cursor-pointer"
+          />
+          <label
+            htmlFor="referencias-layer"
+            className="text-gray-200 text-sm cursor-pointer select-none hover:text-white transition-colors"
+          >
+            Referencias de mejora
           </label>
         </div>
       </div>

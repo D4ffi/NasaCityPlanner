@@ -16,7 +16,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
       <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">
         {title}
       </h2>
-      <div className={`h-64 bg-gradient-to-br ${bgColor} rounded-lg flex items-center justify-center border border-white/5`}>
+      <div className={`h-80 bg-gradient-to-br ${bgColor} rounded-lg flex items-center justify-center border border-white/5 overflow-auto`}>
         {children || <p className="text-gray-400">Gráfica de estadísticas</p>}
       </div>
     </div>

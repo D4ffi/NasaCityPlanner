@@ -3,7 +3,8 @@
     "allow": [
       "WebSearch",
       "Bash(mkdir:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Read(//mnt/c/Users/kossc/Downloads/m3007veracruz/**)"
     ],
     "deny": [],
     "ask": []

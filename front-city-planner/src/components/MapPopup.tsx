@@ -46,6 +46,12 @@ const FIELD_LABELS: Record<string, string> = {
   PEAJE: 'Peaje',
   CIRCULA: 'Circulación',
   NOMGEO: 'Nombre geográfico',
+
+  // Referencias de mejora
+  mejora: 'Tipo de mejora',
+  nombre: 'Nombre',
+  descripcion: 'Descripción',
+  area: 'Área',
 };
 
 const MapPopup = ({ properties, onClose, isVisible }: MapPopupProps) => {
@@ -71,6 +77,17 @@ const MapPopup = ({ properties, onClose, isVisible }: MapPopupProps) => {
       return !isNaN(num) ? num.toFixed(2) : String(value);
     }
 
+    // Formatear tipo de mejora con capitalización
+    if (key === 'mejora') {
+      const mejoraMap: Record<string, string> = {
+        'consultorios': 'Consultorios',
+        'escuela': 'Escuela',
+        'area-abierta': 'Área Abierta',
+        'area-verde': 'Área Verde'
+      };
+      return mejoraMap[value] || String(value);
+    }
+
     return String(value);
   };
 
@@ -79,8 +96,9 @@ const MapPopup = ({ properties, onClose, isVisible }: MapPopupProps) => {
     return null;
   }
 
-  // Detectar si es información vial o de desigualdad
+  // Detectar tipo de datos
   const isVialData = properties.TIPO_VIAL !== undefined;
+  const isMejoraData = properties.mejora !== undefined;
 
   // Filtrar y ordenar propiedades relevantes para DESIGUALDAD
   const priorityFields = ['sun', 'iisu_sun', 'iisu_cd', 'gmu', 'Pob_2010'];
@@ -89,6 +107,9 @@ const MapPopup = ({ properties, onClose, isVisible }: MapPopupProps) => {
   // Campos para VIAL
   const vialMainFields = ['NOMBRE', 'TIPO_VIAL', 'ADMINISTRA', 'CONDICION', 'COND_PAV'];
   const vialDetailFields = ['ANCHO', 'CARRILES', 'VELOCIDAD', 'LONG_KM', 'RECUBRI', 'CIRCULA', 'PEAJE'];
+
+  // Campos para MEJORA
+  const mejoraFields = ['mejora', 'nombre', 'descripcion', 'area'];
 
   const priorityProps = priorityFields
     .filter(key => properties[key] !== null && properties[key] !== undefined && properties[key] !== '')
@@ -106,20 +127,41 @@ const MapPopup = ({ properties, onClose, isVisible }: MapPopupProps) => {
     .filter(key => properties[key] !== null && properties[key] !== undefined && properties[key] !== '')
     .map(key => [key, properties[key]]);
 
+  const mejoraProps = mejoraFields
+    .filter(key => properties[key] !== null && properties[key] !== undefined && properties[key] !== '')
+    .map(key => [key, properties[key]]);
+
+  // Determinar color del header según el tipo de mejora
+  const getMejoraColor = (tipo: string) => {
+    const colorMap: Record<string, string> = {
+      'consultorios': 'from-red-600 to-red-700',
+      'escuela': 'from-blue-600 to-blue-700',
+      'area-abierta': 'from-amber-600 to-amber-700',
+      'area-verde': 'from-emerald-600 to-emerald-700'
+    };
+    return colorMap[tipo] || 'from-gray-600 to-gray-700';
+  };
+
   return (
     <div className={`absolute top-6 left-1/2 -translate-x-1/2 z-[9999] isolate pointer-events-auto rounded-2xl shadow-2xl max-w-lg w-full mx-4 transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       style={{
-        background: 'linear-gradient(to bottom right, rgba(49, 46, 129, 0.95), rgba(88, 28, 135, 0.95))',
+        background: isMejoraData
+          ? 'linear-gradient(to bottom right, rgba(15, 118, 110, 0.95), rgba(5, 150, 105, 0.95))'
+          : 'linear-gradient(to bottom right, rgba(49, 46, 129, 0.95), rgba(88, 28, 135, 0.95))',
         backdropFilter: 'blur(12px)',
-        border: '1px solid rgba(168, 85, 247, 0.4)'
+        border: isMejoraData
+          ? '1px solid rgba(16, 185, 129, 0.4)'
+          : '1px solid rgba(168, 85, 247, 0.4)'
       }}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-purple-500/30">
         <h3 className="text-white font-bold text-lg">
-          {isVialData
-            ? (properties.NOMBRE || 'Información Vial')
-            : (properties.sun || 'Información del Área')
+          {isMejoraData
+            ? (properties.nombre || formatValue('mejora', properties.mejora))
+            : isVialData
+              ? (properties.NOMBRE || 'Información Vial')
+              : (properties.sun || 'Información del Área')
           }
         </h3>
         <button
@@ -133,7 +175,31 @@ const MapPopup = ({ properties, onClose, isVisible }: MapPopupProps) => {
 
       {/* Content */}
       <div className="p-4 max-h-96 overflow-y-auto space-y-4">
-        {isVialData ? (
+        {isMejoraData ? (
+          // INFORMACIÓN DE MEJORA
+          <>
+            {mejoraProps.length > 0 && (
+              <div>
+                <h4 className="text-emerald-300 font-semibold text-sm mb-2">Propuesta de Mejora</h4>
+                <div className="space-y-2">
+                  {mejoraProps.map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="bg-emerald-950/40 rounded-lg px-3 py-2 border border-emerald-500/20 flex justify-between items-center"
+                    >
+                      <span className="text-emerald-300 text-xs font-medium">
+                        {FIELD_LABELS[key] || key}
+                      </span>
+                      <span className="text-white text-sm font-semibold">
+                        {formatValue(key, value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        ) : isVialData ? (
           // INFORMACIÓN VIAL
           <>
             {/* Información Principal Vial */}
@@ -229,7 +295,12 @@ const MapPopup = ({ properties, onClose, isVisible }: MapPopupProps) => {
           </>
         )}
 
-        {!isVialData && priorityProps.length === 0 && accessProps.length === 0 && (
+        {isMejoraData && mejoraProps.length === 0 && (
+          <p className="text-gray-300 text-sm text-center py-4">
+            No hay datos disponibles para esta mejora
+          </p>
+        )}
+        {!isMejoraData && !isVialData && priorityProps.length === 0 && accessProps.length === 0 && (
           <p className="text-gray-300 text-sm text-center py-4">
             No hay datos disponibles para esta área
           </p>

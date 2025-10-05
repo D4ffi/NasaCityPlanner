@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Rocket, Map, Globe } from 'lucide-react';
+import { Building2, TrendingUp, Users, MapPin } from 'lucide-react';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -40,11 +40,11 @@ const LandingPage = ({ onStart }: LandingPageProps) => {
 
       {/* Contenido principal */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-4">
-        {/* Icono de mapa flotante */}
+        {/* Icono de ciudad flotante */}
         <div className="mb-8 relative animate-fade-in-up z-20" style={{ animationDelay: '0.2s' }}>
           <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-xl animate-pulse" />
           <div className="relative bg-gradient-to-br from-blue-500 to-purple-600 p-6 rounded-full">
-            <Map size={64} className="text-white" />
+            <Building2 size={64} className="text-white" />
           </div>
         </div>
 
@@ -60,37 +60,54 @@ const LandingPage = ({ onStart }: LandingPageProps) => {
         </h1>
 
         {/* Subtítulo */}
-        <p className="text-xl md:text-2xl text-gray-300 mb-12 text-center max-w-2xl animate-fade-in-up z-20" style={{ animationDelay: '0.6s' }}>
-          Explora el universo de datos urbanos
-          <br />
-          <span className="text-blue-400">Navega por información geoespacial en tiempo real</span>
+        <p className="text-xl md:text-2xl text-gray-300 mb-4 text-center max-w-3xl animate-fade-in-up z-20" style={{ animationDelay: '0.6s' }}>
+          Propuesta de Mejora Urbana para Veracruz
         </p>
+
+        <p className="text-base md:text-lg text-gray-400 mb-12 text-center max-w-2xl animate-fade-in-up z-20" style={{ animationDelay: '0.8s' }}>
+          Transformando la desigualdad en oportunidades a través del análisis de datos geoespaciales
+          <br />
+          <span className="text-blue-400">Planificación urbana basada en evidencia para una ciudad más inclusiva</span>
+        </p>
+
+        {/* Indicadores de mejora urbana */}
+        <div className="grid grid-cols-3 gap-6 mb-12 animate-fade-in-up z-20" style={{ animationDelay: '1s' }}>
+          <div className="flex flex-col items-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-blue-500/20">
+            <TrendingUp size={32} className="text-blue-400 mb-2" />
+            <span className="text-sm text-gray-300 font-semibold">Reducir Desigualdad</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-purple-500/20">
+            <Users size={32} className="text-purple-400 mb-2" />
+            <span className="text-sm text-gray-300 font-semibold">Inclusión Social</span>
+          </div>
+          <div className="flex flex-col items-center p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-pink-500/20">
+            <MapPin size={32} className="text-pink-400 mb-2" />
+            <span className="text-sm text-gray-300 font-semibold">Acceso Equitativo</span>
+          </div>
+        </div>
 
         {/* Botón de comenzar */}
         <button
           onClick={handleStart}
           disabled={isLoading}
           className="group relative px-12 py-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-white text-xl font-bold shadow-2xl transform transition-all duration-300 hover:scale-110 hover:shadow-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden animate-fade-in-up z-30"
-          style={{ animationDelay: '0.8s' }}
+          style={{ animationDelay: '1.2s' }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
 
           <div className="flex items-center gap-4">
             {isLoading ? (
               <>
-                <Rocket
+                <Building2
                   size={32}
-                  className="animate-bounce"
-                  style={{
-                    animation: 'rocket-launch 3s ease-in-out forwards'
-                  }}
+                  className="animate-pulse"
                 />
-                <span>Despegando...</span>
+                <span>Cargando propuesta...</span>
               </>
             ) : (
               <>
-                <Rocket size={32} className="group-hover:rotate-45 transition-transform duration-300" />
-                <span>Comenzar Exploración</span>
+                <Building2 size={32} className="group-hover:scale-110 transition-transform duration-300" />
+                <span>Explorar Propuesta</span>
               </>
             )}
           </div>
@@ -110,10 +127,13 @@ const LandingPage = ({ onStart }: LandingPageProps) => {
 
         {/* Iconos decorativos flotantes */}
         <div className="absolute bottom-10 left-10 opacity-30 z-10">
-          <Globe size={48} className="text-blue-400 animate-spin" style={{ animationDuration: '20s' }} />
+          <Building2 size={48} className="text-blue-400 animate-pulse" style={{ animationDuration: '3s' }} />
         </div>
         <div className="absolute top-10 left-1/4 opacity-30 z-10">
-          <Map size={40} className="text-purple-400 animate-bounce" style={{ animationDelay: '0.5s' }} />
+          <MapPin size={40} className="text-purple-400 animate-bounce" style={{ animationDelay: '0.5s' }} />
+        </div>
+        <div className="absolute bottom-20 right-1/4 opacity-30 z-10">
+          <Users size={44} className="text-pink-400 animate-pulse" style={{ animationDelay: '1s', animationDuration: '4s' }} />
         </div>
       </div>
 
@@ -136,16 +156,6 @@ const LandingPage = ({ onStart }: LandingPageProps) => {
           100% {
             opacity: 1;
             transform: translateY(0);
-          }
-        }
-
-        @keyframes rocket-launch {
-          0% {
-            transform: translateY(0) rotate(0deg);
-          }
-          100% {
-            transform: translateY(-100vh) rotate(-45deg);
-            opacity: 0;
           }
         }
 
